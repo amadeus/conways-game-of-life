@@ -6,8 +6,9 @@ var CONST, Check, canvas, ctx, oldModel, newModel, update, draw, render, setup, 
 
 CONST = {
 	SIZE    : 10,
-	WIDTH   : 200,
-	HEIGHT  : 100,
+	// Auto calculated based on window size
+	// WIDTH   : 200,
+	// HEIGHT  : 100,
 	SCALE   : window.devicePixelRatio,
 	COLOR   : 'rgba(255,255,255,1)',
 	STROKE  : 'rgba(37,37,37,1)',
@@ -54,7 +55,7 @@ collectArr = function(arr){
 setup = function(){
 	ctx.fillStyle   = CONST.COLOR;
 	ctx.strokeStyle = CONST.STROKE;
-	ctx.lineWidth   = CONST.SCALE * 2;
+	ctx.lineWidth   = CONST.SCALE;
 
 	for (row = 0; row < CONST.HEIGHT; row++) {
 		for (col = 0; col < CONST.WIDTH; col++) {
