@@ -4,21 +4,31 @@
 var CONST, Check, canvas, ctx, oldModel, newModel, update, draw, render, setup, row, col, calc,
     getArr, collectArr, handleInput;
 
+// Various variables and constants used throughout the code
 CONST = {
+	// Determines the size of each block
 	SIZE    : 10,
-	// Auto calculated based on window size
-	// WIDTH   : 200,
-	// HEIGHT  : 100,
+	// Used to support retina resolutions
 	SCALE   : window.devicePixelRatio,
+	// Deprecated
 	COLOR   : 'rgba(255,255,255,1)',
+	// All blocks are stroked with the background
+	// color to create a slight separation
 	STROKE  : 'rgba(37,37,37,1)',
+	// Color used for the background
 	BGCOLOR : 'rgba(37,37,37,1)',
+	// An array to use for array pooling
+	// Probably a premature optimization
 	ARRS    : []
 };
 
-CONST.WIDTH = (window.innerWidth   - (window.innerWidth % CONST.SIZE)) / CONST.SIZE;
+// Width and height are dynamically calculated based on the
+// browser window size and block size
+CONST.WIDTH  = (window.innerWidth   - (window.innerWidth % CONST.SIZE)) / CONST.SIZE;
 CONST.HEIGHT = (window.innerHeight - (window.innerHeight % CONST.SIZE)) / CONST.SIZE;
 
+// Create the canvas element, set a proper retina supported resolution
+// and a display resolution. Save the context for later
 canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
 canvas.width  = CONST.WIDTH  * CONST.SIZE * CONST.SCALE;
@@ -27,12 +37,17 @@ canvas.style.width  = CONST.WIDTH  * CONST.SIZE + 'px';
 canvas.style.height = CONST.HEIGHT * CONST.SIZE + 'px';
 ctx = canvas.getContext('2d');
 
+// Create an empty array model
 oldModel = new Array(CONST.HEIGHT);
-
 for (row = 0; row < CONST.HEIGHT; row++) {
 	oldModel[row] = new Array(CONST.WIDTH);
 }
 
+// Returns a re-used array if available, otherwise
+// creates a new one.  We do this since every frame
+// we have to duplicate the entire data model, so it helps
+// to optimize array instantiations.  Could probably be better
+// optimized, but this makes the update function simpler
 getArr = function(){
 	if (CONST.ARRS.length) {
 		return CONST.ARRS.pop();
@@ -41,6 +56,7 @@ getArr = function(){
 	}
 };
 
+// Collect old arrays and set them up for re-use
 collectArr = function(arr){
 	var x;
 	for (x = 0; x < arr.length; x++) {
@@ -52,6 +68,7 @@ collectArr = function(arr){
 	CONST.ARRS.push(arr);
 };
 
+// Create a randomized distribution of alive and dead cells
 setup = function(){
 	ctx.strokeStyle = CONST.STROKE;
 	ctx.lineWidth   = CONST.SCALE;
@@ -67,7 +84,12 @@ setup = function(){
 	}
 };
 
+// Called once every frame. Iterates over all cells and
+// calculates whether it should be alive or dead
 update = function(){
+	// Create a new model to copy over updated values
+	// We cannot manipulate the old method or the entire algo
+	// breaks down.
 	newModel = getArr();
 	for (row = 0; row < CONST.HEIGHT; row++) {
 		newModel[row] = getArr();
@@ -75,10 +97,14 @@ update = function(){
 			newModel[row][col] = calc(oldModel[row][col], row, col, oldModel);
 		}
 	}
+	// Garbage collect last frame's model
 	collectArr(oldModel);
+	// Backup oldModel for next frame
 	oldModel = newModel;
 };
 
+// Methods to check adjacent cells. All support the ability
+// to wrap around if at the edge of the screen
 Check = {
 	Up: function(row, col, model){
 		if (row === 0) {
@@ -189,6 +215,9 @@ Check = {
 	}
 };
 
+// Calculate number of adjacent live cells using
+// the afore mentioned check methods. Then return the
+// state of the cell based on the findings
 calc = function(base, row, col, model){
 	var adj = 0;
 
@@ -233,6 +262,7 @@ calc = function(base, row, col, model){
 	return 0;
 };
 
+// Iterated through the newModel and draw each cell
 draw = function(){
 	var mag, style;
 	ctx.fillStyle = CONST.BGCOLOR;
@@ -280,6 +310,8 @@ render = function(){
 setup();
 render();
 
+// Used to trigger changes on mouse move, to excite
+// the system when it stagnates
 handleInput = function(event) {
 	var x, y;
 
