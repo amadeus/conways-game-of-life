@@ -53,7 +53,6 @@ collectArr = function(arr){
 };
 
 setup = function(){
-	ctx.fillStyle   = CONST.COLOR;
 	ctx.strokeStyle = CONST.STROKE;
 	ctx.lineWidth   = CONST.SCALE;
 
@@ -244,7 +243,6 @@ draw = function(){
 		CONST.HEIGHT * CONST.SIZE * CONST.SCALE
 	);
 
-	ctx.fillStyle = CONST.COLOR;
 	for (row = 0; row < CONST.HEIGHT; row++) {
 		for (col = 0; col < CONST.WIDTH; col++) {
 			if (!newModel[row][col]) {
